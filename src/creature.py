@@ -60,10 +60,10 @@ class Creature:
         self.position = position
 
     def _update_virus_status(self) -> None:
-        assert self.virus is not None
-
         if not self.is_sick:
             return
+
+        assert self.virus is not None
 
         if self.infected_remainder_ticks > 0:
             self.infected_remainder_ticks -= 1
