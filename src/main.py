@@ -1,43 +1,38 @@
 import sys
 import time
-from itertools import count
 
 import pygame
 from loguru import logger
 
 import utils
-from creature import Creature
+from creature import prepare_creatures
 from parameters import (
     COLOR_BLACK,
     COLOR_WHITE,
     CREATURE_COUNT,
     FIELD_HEIGHT,
     FIELD_WIDTH,
-    INFECTED_INIT_COUNT,
-    VIRUS,
 )
-
-CREATURES = [Creature(name=f"Creature {i}") for i in range(1, CREATURE_COUNT + 1)]
-
-for i in range(INFECTED_INIT_COUNT):
-    CREATURES[i].infect(VIRUS)
+from stats import Stats
 
 pygame.init()
 SCREEN = pygame.display.set_mode((FIELD_WIDTH, FIELD_HEIGHT))
 pygame.display.set_caption("VIRUS SIMULATOR")
+CREATURES = prepare_creatures()
+running = True
+STATS = Stats()
 
-for tick_cnt in count(1):
+while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
 
-    SCREEN.fill(COLOR_WHITE)
+    if not running:
+        continue
 
-    healthy = 0
-    sick = 0
-    cured = 0
-    dead = 0
+    SCREEN.fill(COLOR_WHITE)
+    STATS.tick_cnt += 1
 
     for i in range(CREATURE_COUNT):
         CREATURES[i].tick_update()
@@ -54,10 +49,7 @@ for tick_cnt in count(1):
                 1,
             )
 
-            for j in range(CREATURE_COUNT):
-                if i == j:
-                    continue
-
+            for j in filter(lambda x: CREATURES[x].is_recipient, range(CREATURE_COUNT)):
                 distance = utils.get_distance(creature.position, CREATURES[j].position)
 
                 if (
@@ -66,36 +58,36 @@ for tick_cnt in count(1):
                 ):
                     CREATURES[j].infect(creature.virus)
 
-            sick += 1
+            STATS.sick += 1
         elif not creature.alive:
-            dead += 1
+            STATS.dead += 1
         elif creature.immune_to:
-            cured += 1
+            STATS.cured += 1
         else:
-            healthy += 1
+            STATS.healthy += 1
 
         pygame.draw.circle(
             SCREEN, creature.color, (creature.position.x, creature.position.y), 10
         )
 
-    if sick == 0:
-        logger.info("No sick creatures left. Collective immunity achieved")
-    if dead == CREATURE_COUNT:
-        logger.info("All creatures have died")
-
-    status = "; ".join(
-        [
-            f"Tick {tick_cnt}",
-            f"Healthy creatures: {healthy}",
-            f"Sick creatures: {sick}",
-            f"Cured creatures: {cured}",
-            f"Dead creatures: {dead}",
-            f"Total creatures: {CREATURE_COUNT}",
-        ]
-    )
     font = pygame.font.SysFont("Arial", 18)
-    img = font.render(status, True, COLOR_BLACK, COLOR_WHITE)
+    img = font.render(str(STATS), True, COLOR_BLACK, COLOR_WHITE)
     SCREEN.blit(img, (20, 20))
-
-    time.sleep(0.05)
     pygame.display.update()
+
+    if STATS.sick == 0:
+        logger.info("No sick creatures left. Collective immunity achieved")
+        running = False
+
+    if STATS.dead == CREATURE_COUNT:
+        logger.info("All creatures have died")
+        running = False
+
+    if not running:
+        CREATURES = prepare_creatures()
+        running = True
+        STATS = Stats()
+
+    STATS.reset_cnt()
+
+    time.sleep(0.01)

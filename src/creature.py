@@ -10,9 +10,12 @@ from parameters import (
     COLOR_BLUE,
     COLOR_GREEN,
     COLOR_RED,
+    CREATURE_COUNT,
     Color,
     FACING_VARIATION,
+    INFECTED_INIT_COUNT,
     TICK_MOVE,
+    VIRUS,
 )
 from position import Position
 from utils import choose_with_probability
@@ -34,6 +37,12 @@ class Creature:
     @property
     def is_sick(self) -> bool:
         return self.virus is not None
+
+    @property
+    def is_recipient(self) -> bool:
+        if self.is_sick or not self.alive or self.immune_to:
+            return False
+        return True
 
     def tick_update(self) -> None:
         if not self.alive:
@@ -96,8 +105,17 @@ class Creature:
         if self.is_sick or virus in self.immune_to:
             return
 
-        if choose_with_probability(virus.contingency):
+        if choose_with_probability(virus.infectiousness):
             self.infected_remainder_ticks = virus.lifetime
             self.color = COLOR_RED
             self.virus = virus
             logger.info(f"{self.name} has been infected with {virus.name}")
+
+
+def prepare_creatures() -> tp.List[Creature]:
+    creatures = [Creature(name=f"Creature {n}") for n in range(1, CREATURE_COUNT + 1)]
+
+    for i in range(INFECTED_INIT_COUNT):
+        creatures[i].infect(VIRUS)
+
+    return creatures
