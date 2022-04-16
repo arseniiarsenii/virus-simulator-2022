@@ -1,6 +1,6 @@
 import typing as tp
 
-from virus import influenza
+import virus
 
 # Configuration
 FIELD_HEIGHT = 1000
@@ -9,7 +9,7 @@ CREATURE_COUNT = 100
 INFECTED_INIT_COUNT = 3
 TICK_MOVE = 5
 FACING_VARIATION = 30
-VIRUS = influenza
+VIRUSES = [virus.virus_1, virus.virus_2, virus.virus_3]
 
 # Colors
 Color = tp.Tuple[int, int, int]

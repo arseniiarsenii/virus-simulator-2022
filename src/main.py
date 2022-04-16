@@ -1,5 +1,6 @@
 import sys
 import time
+from itertools import cycle
 
 import pygame
 from loguru import logger
@@ -12,13 +13,16 @@ from parameters import (
     CREATURE_COUNT,
     FIELD_HEIGHT,
     FIELD_WIDTH,
+    VIRUSES,
 )
 from stats import Stats
 
 pygame.init()
 SCREEN = pygame.display.set_mode((FIELD_WIDTH, FIELD_HEIGHT))
 pygame.display.set_caption("VIRUS SIMULATOR")
-CREATURES = prepare_creatures()
+viruses = cycle(VIRUSES)
+virus = next(viruses)
+CREATURES = prepare_creatures(virus)
 running = True
 STATS = Stats()
 
@@ -70,9 +74,12 @@ while True:
             SCREEN, creature.color, (creature.position.x, creature.position.y), 10
         )
 
-    font = pygame.font.SysFont("Arial", 18)
-    img = font.render(str(STATS), True, COLOR_BLACK, COLOR_WHITE)
-    SCREEN.blit(img, (20, 20))
+    font_size = 20
+    font = pygame.font.SysFont("Arial", font_size)
+    stats = font.render(str(STATS), True, COLOR_BLACK, COLOR_WHITE)
+    SCREEN.blit(stats, (20, 20))
+    virus_name = font.render(virus.name, True, COLOR_BLACK, COLOR_WHITE)
+    SCREEN.blit(virus_name, (20, FIELD_HEIGHT - 20 - font_size))
     pygame.display.update()
 
     if STATS.sick == 0:
@@ -84,9 +91,11 @@ while True:
         running = False
 
     if not running:
-        CREATURES = prepare_creatures()
+        virus = next(viruses)
+        CREATURES = prepare_creatures(virus)
         running = True
         STATS = Stats()
+        time.sleep(5)
 
     STATS.reset_cnt()
 

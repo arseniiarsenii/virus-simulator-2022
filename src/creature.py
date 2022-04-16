@@ -15,7 +15,6 @@ from parameters import (
     FACING_VARIATION,
     INFECTED_INIT_COUNT,
     TICK_MOVE,
-    VIRUS,
 )
 from position import Position
 from utils import choose_with_probability
@@ -112,10 +111,10 @@ class Creature:
             logger.info(f"{self.name} has been infected with {virus.name}")
 
 
-def prepare_creatures() -> tp.List[Creature]:
+def prepare_creatures(virus: Virus) -> tp.List[Creature]:
     creatures = [Creature(name=f"Creature {n}") for n in range(1, CREATURE_COUNT + 1)]
 
     for i in range(INFECTED_INIT_COUNT):
-        creatures[i].infect(VIRUS)
+        creatures[i].infect(virus)
 
     return creatures
