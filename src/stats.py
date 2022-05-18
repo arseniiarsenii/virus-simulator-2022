@@ -1,7 +1,5 @@
 from dataclasses import dataclass
 
-from parameters import CREATURE_COUNT
-
 
 @dataclass
 class Stats:
@@ -10,7 +8,12 @@ class Stats:
     sick: int = 0
     cured: int = 0
     dead: int = 0
-    total: int = CREATURE_COUNT
+
+    @property
+    def total(self) -> int:
+        return sum(
+            (self.healthy, self.sick, self.cured, self.dead)
+        )
 
     def __str__(self) -> str:
         return "; ".join(
