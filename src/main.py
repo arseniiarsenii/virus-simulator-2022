@@ -18,7 +18,9 @@ from parameters import (
 from stats import Stats
 
 pygame.init()
-SCREEN = pygame.display.set_mode((FIELD_WIDTH, FIELD_HEIGHT))
+SCREEN = pygame.display.set_mode(
+    (FIELD_WIDTH, FIELD_HEIGHT)
+)
 pygame.display.set_caption("VIRUS SIMULATOR")
 viruses = cycle(VIRUSES)
 virus = next(viruses)
@@ -53,11 +55,17 @@ while True:
                 1,
             )
 
-            for j in filter(lambda x: CREATURES[x].is_recipient, range(CREATURE_COUNT)):
-                distance = utils.get_distance(creature.position, CREATURES[j].position)
+            for j in filter(
+                lambda x: CREATURES[x].is_recipient,
+                range(CREATURE_COUNT),
+            ):
+                distance = utils.get_distance(
+                    creature.position, CREATURES[j].position
+                )
 
                 if (
-                    distance <= creature.virus.transmission_radius
+                    distance
+                    <= creature.virus.transmission_radius
                     and CREATURES[j].alive
                 ):
                     CREATURES[j].infect(creature.virus)
@@ -71,19 +79,30 @@ while True:
             STATS.healthy += 1
 
         pygame.draw.circle(
-            SCREEN, creature.color, (creature.position.x, creature.position.y), 10
+            SCREEN,
+            creature.color,
+            (creature.position.x, creature.position.y),
+            10,
         )
 
     font_size = 20
     font = pygame.font.SysFont("Arial", font_size)
-    stats = font.render(str(STATS), True, COLOR_BLACK, COLOR_WHITE)
+    stats = font.render(
+        str(STATS), True, COLOR_BLACK, COLOR_WHITE
+    )
     SCREEN.blit(stats, (20, 20))
-    virus_name = font.render(virus.name, True, COLOR_BLACK, COLOR_WHITE)
-    SCREEN.blit(virus_name, (20, FIELD_HEIGHT - 20 - font_size))
+    virus_name = font.render(
+        virus.name, True, COLOR_BLACK, COLOR_WHITE
+    )
+    SCREEN.blit(
+        virus_name, (20, FIELD_HEIGHT - 20 - font_size)
+    )
     pygame.display.update()
 
     if STATS.sick == 0:
-        logger.info("No sick creatures left. Collective immunity achieved")
+        logger.info(
+            "No sick creatures left. Collective immunity achieved"
+        )
         running = False
 
     if STATS.dead == CREATURE_COUNT:

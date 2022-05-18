@@ -5,7 +5,9 @@ from random import randint
 from position import Position
 
 
-def choose_with_probability(probability: tp.Union[int, float]) -> bool:
+def choose_with_probability(
+    probability: tp.Union[int, float]
+) -> bool:
     """Chose with certain probability"""
     if 0 <= probability <= 1:
         probability = int(probability * 100)

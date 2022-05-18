@@ -28,7 +28,9 @@ class Creature:
     name: tp.Union[str, int]
     color: Color = COLOR_BLUE
     alive: bool = True
-    position: Position = field(default_factory=lambda: Position())
+    position: Position = field(
+        default_factory=lambda: Position()
+    )
     infected_remainder_ticks: int = 0
     virus: tp.Optional[Virus] = None
     immune_to: tp.Set[Virus] = field(default_factory=set)
@@ -53,9 +55,20 @@ class Creature:
     def _move(self) -> None:
         def get_new_position(facing: int) -> Position:
             return Position(
-                facing=facing + randint(-FACING_VARIATION, FACING_VARIATION),
-                x=int(self.position.x + math.cos(math.radians(facing)) * TICK_MOVE),
-                y=int(self.position.y + math.sin(math.radians(facing)) * TICK_MOVE),
+                facing=facing
+                + randint(
+                    -FACING_VARIATION, FACING_VARIATION
+                ),
+                x=int(
+                    self.position.x
+                    + math.cos(math.radians(facing))
+                    * TICK_MOVE
+                ),
+                y=int(
+                    self.position.y
+                    + math.sin(math.radians(facing))
+                    * TICK_MOVE
+                ),
             )
 
         facing = self.position.facing
@@ -77,7 +90,9 @@ class Creature:
             self.infected_remainder_ticks -= 1
 
         if self.infected_remainder_ticks == 0:
-            lethal_outcome: bool = choose_with_probability(self.virus.lethality)
+            lethal_outcome: bool = choose_with_probability(
+                self.virus.lethality
+            )
 
             if lethal_outcome:
                 self._die()
@@ -88,7 +103,9 @@ class Creature:
         assert self.virus is not None
         self.alive = False
         self.color = COLOR_BLACK
-        logger.info(f"{self.name} has died from {self.virus.name}")
+        logger.info(
+            f"{self.name} has died from {self.virus.name}"
+        )
         self.virus = None
 
     def _cure(self) -> None:
@@ -108,11 +125,16 @@ class Creature:
             self.infected_remainder_ticks = virus.lifetime
             self.color = COLOR_RED
             self.virus = virus
-            logger.info(f"{self.name} has been infected with {virus.name}")
+            logger.info(
+                f"{self.name} has been infected with {virus.name}"
+            )
 
 
 def prepare_creatures(virus: Virus) -> tp.List[Creature]:
-    creatures = [Creature(name=f"Creature {n}") for n in range(1, CREATURE_COUNT + 1)]
+    creatures = [
+        Creature(name=f"Creature {n}")
+        for n in range(1, CREATURE_COUNT + 1)
+    ]
 
     for i in range(INFECTED_INIT_COUNT):
         creatures[i].infect(virus)
